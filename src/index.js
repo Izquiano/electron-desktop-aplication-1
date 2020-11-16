@@ -11,7 +11,7 @@ if(process.env.NODE_ENV !== 'production'){
 
 
 let mainWindow
-let createNewProductWindow
+let newProductWindow
 
 app.on('ready', () => {
   
@@ -25,16 +25,20 @@ app.on('ready', () => {
 
   const mainMenu = Menu.buildFromTemplate(templateMenu)
   Menu.setApplicationMenu(mainMenu)
+  mainWindow.on('closed', () => {
+    app.quit()
+  })
 })
 
-function createNewProduct() {
-  createNewProductWindow = new BrowserWindow ({
+function createNewProductWindow() {
+  newProductWindow = new BrowserWindow ({
     width: 400,
     height: 320,
     title: 'Add a new product'
   })
+  newProductWindow.setMenu(null)
 
-  createNewProductWindow.loadURL(url.format({
+  newProductWindow.loadURL(url.format({
     pathname: path.join(__dirname, '/views/new-product.html'),
     protocol: 'file',
     slashes: true
@@ -50,7 +54,7 @@ const templateMenu = [
         label: 'New product',
         accelerator: 'Ctrl+N',
         click() {
-          createNewProduct()
+          createNewProductWindow()
         }
       }
     ]
