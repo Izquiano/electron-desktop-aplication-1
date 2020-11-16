@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain } = require("electron");
 
 const url = require("url");
 const path = require("path");
@@ -17,6 +17,9 @@ let newProductWindow;
 app.on("ready", () => {
   mainWindow = new BrowserWindow({
     title: "Main window",
+    webPreferences: {
+      nodeIntegration: true
+  }
   });
 
   mainWindow.loadURL(
@@ -39,8 +42,11 @@ function createNewProductWindow() {
     width: 400,
     height: 320,
     title: "Add a new product",
+    webPreferences: {
+      nodeIntegration: true
+  }
   });
-  newProductWindow.setMenu(null);
+  // newProductWindow.setMenu(null);
 
   newProductWindow.loadURL(
     url.format({
@@ -54,6 +60,13 @@ function createNewProductWindow() {
     newProductWindow = null;
   });
 }
+
+
+ipcMain.on('product:new', (e, newProduct) => {
+  // console.log(newProduct)
+  mainWindow.webContents.send('product:new', newProduct)
+  newProductWindow.close()
+})
 
 const templateMenu = [
   {
@@ -69,6 +82,9 @@ const templateMenu = [
       { type: 'separator' },
       {
         label: "Remove all products",
+        click() {
+          mainWindow.webContents.send('products:remove-all')
+        }
       },
     ],
   },
@@ -92,9 +108,11 @@ if (isMac) {
 if(process.env.NODE_ENV !== 'production'){
   templateMenu.push({
     label: 'DevTools',
+    
     submenu: [
       {
         label: 'Show/Hide Dev Tools',
+        accelerator: isMac ? "command+D" : "Ctrl+D",
         click(item, focusedWindow) {
           focusedWindow.toggleDevTools()
         }

@@ -1,5 +1,6 @@
 {
   "name": "electron-app",
+  "productName": "Product List",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
